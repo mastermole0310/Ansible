@@ -1,0 +1,7 @@
+---
+- hosts: ansible_lesha
+  become: yes
+
+
+  roles:
+    - SQL_installation

@@ -1,0 +1,7 @@
+---
+- hosts: ansible_sasha
+  become: yes
+
+
+  roles:
+    - docker_installation
