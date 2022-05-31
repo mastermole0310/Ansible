@@ -1,33 +1,51 @@
-1. create 3 ec2 instances via terraform (terraform should OUTPUT IP external addresses of the new instances) (I should be able to set custom IAM for each instance)
+**Ansible roles**
 
-2. Create Ansible roles:
-  - basic settings
-  - SQL installation
-  - docker installation
-  - launch app (nextcloud)
+## ==ТРЕБОВАНИЯ==
+- OC Linux Ubuntu, Debian или др.
+## ==Подготовка к работе с Ansible_roles==
+- скопировать данный репозиторий в Visual Studio Code или другой редактор кода
+- выполнить команду terraform apply
+- Terraform создаст 3 инстанса на основе Linux Ubuntu и выведет в терминал внешние ip адреса этих инстансов
+- Далее генерируем ssh key и копируем его на 2 инстанса, на третий инстанс будем устанавливать Ansible
+- Устанавливем Ansible:
+  - sudo apt-get update
+  - sudo apt upgrade
+  - sudo apt install ansible
+- Копируем содержимое файла hosts и ansible.cfg в соответствующие файлы, которые расположены в директории /etc/ansible/ (открывать файлы с командой sudo!)
+- Проверяем подключение к узлам командой:
+  - ansible all -m ping
+  - отклик при удачном подключении будет следующим:
+    server1 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+- Выполните команду ansible-galaxy init <Имя роли>  
+- Копируем содержимое папок с репозитория <Имя роли>/tasks/main в соответствующие диретории (basic_settings, docker_installation, SQL_installation, Launch_app) на инстанс с установленным Ansible, файлы playbook.yml так же копируем в созданные директории
 
-
-3. basic role should:
- - create /opt/logs folder
- - create a user "sasha" with rsa key - 
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDC4k5c+A7NeIA/7lnf5VI+iCbK9leoWVYm/qN6/+/zpc6+E9/Ij617FLpPwrvN/1yr6T6T8NEoW069F8RkrPWp/43Tt8aYNNFQYFiZkHpqEtkjZ7k/jzBcGTgZuVkmaLrRNJDb11bmQKnGtJ80ucGMW77cLJx89Cv/X30wgoAUvjqQMUJfnw/7LJVasEE4AtHWiKw32efl5R+eXx6LXhRzktLZ0RliGjrcvQPtNTgxw+U29sdnP3tA71Bnc+In94CT05C6laXBi8grKQAcsAsHXwdOKi5ywNqBUnlfpjjH0WvBNbjPaqEd/05ZJz3glvz0GahysAAFdvdWXgi7Ouyb aalimov@aalimov-c
-
- - user sasha should have sudo admin permissions and ability to ssh into the instance
-
--  timezone in all instances should be in Kaliningrad TZ
-
-
-4. SQL installation role should:
- - install the latest MiranaDB application into the host (no docker)
-
-5.  docker installation role: 
- - install the latest docker app into the instance
-
-6. launch app (nextcloud) role:
- - check if docker installed 
- - docker run nextcloud using EXTERNAL DB
-
-7. Support all the projects with good documentation on how to use it 
- - how to apply tf
- - how to apply ansible
- - how to launch the project
+## ==Basic_settings==
+- Сгенерируйте ключи ssh командой ssh-keygen -t rsa
+- В директории /home/ubuntu/.ssh/ появится пара ключей id_rsa.pub и id_rsa
+- Запустите команнду ansible-playbook playbook.yml
+- В результате создастся директория /opt/logs folder, установится временная зона Europe/Kaliningrad и создастся новый пользователь с правами root и возможностью подключения по ssh ключу
+## ==Docker_installation==
+ - Запустите команду ansible-playbook playbook.yml в соответсвующей директории
+ - Докер будет установлен на соответствующий инстанс
+## ==Launch_app (nextcloud)==
+ - Запустите команду ansible-playbook playbook.yml в соответсвующей директории
+ - В результате в консоле будет выведена версия докера и установлен nextcloud  на соответсвующий инстанс
+## ==SQL_installation==
+ - Запустите команду ansible-playbook playbook.yml в соответсвующей директории
+ - MariaDB будет установлена на соответствующий инстанс
+ - Создадим базу данных:
+   - sudo mysql_secure_installation
+   - Везде нажимаем YES
+   - sudo mysql -u root -p
+   - Придумать логин и пароль
+ - Задаем разрешение для удаленного подключенияЖ  
+   - GRANT ALL ON database_name.* to 'database_username'@'ip адрес' IDENTIFIED BY 'database_password';
+   - FLUSH PRIVILEGES;
+   - SELECT host FROM mysql.user WHERE user = "database_username";
+ - Заходим в директорию /etc/mysql/mariabd.conf.d/50-server.cnf комментим строчки bind-address и port
+ - Перезапускаем базу данных:  sudo service mysql restart
+ - Теперь можно подключиться к nextcloud на соответствующем порту, ввести необходимые данные и все готово
+## ==АВТОР==
+- Smirnov Alexey
