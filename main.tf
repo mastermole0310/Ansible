@@ -1,4 +1,9 @@
 terraform {
+  backend "s3" {
+    bucket         = "my-terraform-tfstates"
+    key            = "terraform.tfstate"
+    region         = "us-east-2"
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -10,7 +15,7 @@ terraform {
 }
 
 provider "aws" {
-  profile = "default"
+  #profile = "default"
   region  = "us-east-2"
 }
 

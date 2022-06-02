@@ -1,8 +1,0 @@
----
-- hosts: ansible_sasha
-  become: yes
-
-
-  roles:
-    - launch_app_(nextclod)
-    
