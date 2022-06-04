@@ -1,0 +1,23 @@
+---
+# tasks file for install_nextcloud_docker_version
+- name: Check is docer-compose installed
+  shell: command -v docker >/dev/null 2>&1
+  register: is_docker_install
+  ignore_errors: yes
+- debug: msg="{{ is_docker_install.rc }}" # it returns rc 1
+- debug: var=is_docker_install
+
+- name: Run only if docker is installed
+  shell: command docker --version
+  register: print_version
+  ignore_errors: yes
+  when: is_docker_install.rc == 0
+- debug: msg="{{ print_version.stdout }}"
+
+
+- name: Deploy Nextcloud
+  docker_container:
+    image: nextcloud:stable
+    name: nextcloud
+    ports:
+      - "8081:80"
