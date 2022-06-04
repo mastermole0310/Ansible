@@ -1,3 +1,7 @@
 [my_webservers]
-ansible_lesha ansible_host=<your public_ip> ansible_user=ubuntu ansible_ssh_private_key_file=/путь_к_вашему_файлу/key.pem
-ansible_sasha ansible_host=<your public_ip> ansible_user=ubuntu ansible_ssh_private_key_file=/путь_к_вашему_файлу/key.pem
+ansible_lesha ansible_host=<your public_ip>
+ansible_sasha ansible_host=<your public_ip>
+
+[my_webservers_vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file=/путь_к_вашему_файлу/key.pem
